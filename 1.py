@@ -1,20 +1,27 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
+
 import os
+import sys
 import __future__
 import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 
-index = 1
+
+image_index = 1
+
+
+def print_progress(progress, total):
+    sys.stderr.write('{}{:3.0f}% completed.{}'.format('\r' if progress != 0 else '', 100.0 * progress / total, '\n' if progress == total else ''))
+
 
 def skin_color_detection(image_name):
     test_image = cv2.imread(image_name)
-
     # RGB到YCbCr色彩空间
     image_YCbCr = cv2.cvtColor(test_image, cv2.COLOR_RGB2YCrCb)
 
-    # 返回行数，列数，通道个数
+    # 返回(行数，列数，通道个数)
     shape = image_YCbCr.shape
 
     Kl, Kh = 125, 188
@@ -30,6 +37,7 @@ def skin_color_detection(image_name):
     # 每行
     for row in range(shape[0]):
         # 每列
+        print_progress(row, shape[0])
         for col in range(shape[1]):
             Y = image_YCbCr[row, col, 0]
             CbY = image_YCbCr[row, col, 1]
@@ -62,7 +70,7 @@ def skin_color_detection(image_name):
                 # 公式(5)
                 Cb = CbY
                 Cr = CrY
-            # Cb，Cr代入椭圆模型
+            # Cb，Cr代入椭圆模型8
             cosTheta = np.cos(Theta)
             sinTehta = np.sin(Theta)
             matrixA = np.array([[cosTheta, sinTehta], [-sinTehta, cosTheta]], dtype=np.double)
@@ -78,14 +86,18 @@ def skin_color_detection(image_name):
                 # 黑
             else:
                 image_YCbCr[row, col] = [0, 0, 0]
+    print_progress(row, shape[0])
     # 绘图
     original = plt.imread(image_name)
+    global image_index
+    plt.figure(image_index)
     plt.subplot(121)
     plt.imshow(original)
     plt.title('Original')
     plt.subplot(122)
     plt.imshow(image_YCbCr)
     plt.title('New')
+    image_index += 1
     print(image_name + ' has been processed successfully!')
 
 if __name__ == '__main__':
