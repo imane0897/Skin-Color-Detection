@@ -59,9 +59,9 @@ def skin_color_detection(image):
     global image_index
     plt.figure(image_index)
     plt.subplot(121)
-    plt.imshow(skin_mask)
-    plt.subplot(122)
     plt.imshow(image)
+    plt.subplot(122)
+    plt.imshow(skin_mask)
     image_index += 1
 
 

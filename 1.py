@@ -98,7 +98,7 @@ def skin_color_detection(image_name):
     plt.imshow(image_YCbCr)
     plt.title('New')
     image_index += 1
-    print(image_name + ' has been processed successfully!')
+
 
 if __name__ == '__main__':
     path = '.'

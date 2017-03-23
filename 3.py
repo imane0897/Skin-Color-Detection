@@ -63,7 +63,7 @@ def skin_color_detection(imgFile):
     plt.xticks([])
     plt.yticks([])
     image_index += 1
-    print(imgFile + ' has been processed successfully!')
+
 
 if __name__ == '__main__':
     path = '.'
