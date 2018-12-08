@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import os
@@ -9,17 +9,20 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 
-image_index = 1
+image_index = 0
+total_correction = 0
 
 
 def print_progress(progress, total):
-    sys.stderr.write('{}{:3.0f}% completed.{}'.format('\r' if progress != 0 else '', 100.0 * progress / total, '\n' if progress == total else ''))
+    sys.stderr.write('{}{:3.0f}% completed.{}'.format('\r' if progress !=
+                                                      0 else '', 100.0 * progress / total, '\n' if progress == total else ''))
 
 
-def skin_color_detection(image_name):
-    test_image = cv2.imread(image_name)
+def skin_color_detection(origin_image, correct_image):
+    image = cv2.imread(origin_image)
+    c_image = cv2.imread(correct_image)
     # RGB到YCbCr色彩空间
-    image_YCbCr = cv2.cvtColor(test_image, cv2.COLOR_RGB2YCrCb)
+    image_YCbCr = cv2.cvtColor(image, cv2.COLOR_RGB2YCrCb)
 
     # 返回(行数，列数，通道个数)
     shape = image_YCbCr.shape
@@ -73,7 +76,8 @@ def skin_color_detection(image_name):
             # Cb，Cr代入椭圆模型8
             cosTheta = np.cos(Theta)
             sinTehta = np.sin(Theta)
-            matrixA = np.array([[cosTheta, sinTehta], [-sinTehta, cosTheta]], dtype=np.double)
+            matrixA = np.array(
+                [[cosTheta, sinTehta], [-sinTehta, cosTheta]], dtype=np.double)
             matrixB = np.array([[Cb - Cx], [Cr - Cy]], dtype=np.double)
             # 矩阵相乘
             matrixC = np.dot(matrixA, matrixB)
@@ -83,29 +87,46 @@ def skin_color_detection(image_name):
             if ellipse <= 1:
                 # 白
                 image_YCbCr[row, col] = [255, 255, 255]
-                # 黑
             else:
+                # 黑
                 image_YCbCr[row, col] = [0, 0, 0]
     print_progress(row, shape[0])
     # 绘图
-    original = plt.imread(image_name)
+    # original = plt.imread(origin_image)
+    # global image_index
+    # plt.figure(image_index)
+    # plt.subplot(121)
+    # plt.imshow(original)
+    # plt.title('Original')
+    # plt.subplot(122)
+    # plt.imshow(image_YCbCr)
+    # plt.title('New')
+    # image_index += 1
+    # 比较
+    total_same = 0
+    for row in range(shape[0]):
+        for col in range(shape[1]):
+            if np.array_equal(image_YCbCr[row, col], c_image[row, col]):
+                total_same += 1
+    correction = total_same / (row * col)
+    global total_correction
+    total_correction += correction
     global image_index
-    plt.figure(image_index)
-    plt.subplot(121)
-    plt.imshow(original)
-    plt.title('Original')
-    plt.subplot(122)
-    plt.imshow(image_YCbCr)
-    plt.title('New')
     image_index += 1
+    print(correction)
 
 
 if __name__ == '__main__':
-    path = '.'
-    file_dir = os.listdir(path)
+    path = 'Face_Dataset/'
+    file_dir = os.listdir(path + 'test_image')
     for i in file_dir:
         s = os.path.splitext(i)
         if s[1] != '.py' and s[1] != '':
             print('Processing ' + s[0] + s[1] + ' ...')
-            skin_color_detection(s[0] + s[1])
-    plt.show()
+            skin_color_detection(path + 'test_image/' + s[0] + s[1], path + 'test_mask/' + s[0] + '.png')
+    # plt.show()
+    # image_path = 'Face_Dataset/test_image/amida-belly-dancer.jpg'
+    # correct_image = 'Face_Dataset/test_mask/amida-belly-dancer.png'
+    # skin_color_detection(image_path, correct_image)
+
+    print(total_correction / image_index)

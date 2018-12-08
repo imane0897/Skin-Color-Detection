@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 import numpy
 import os
@@ -7,11 +7,13 @@ from matplotlib import pyplot as plt
 from scipy.misc import imread, imshow
 
 
-image_index = 1
+image_index = 0
+total_correction = 0
 
 
 def print_progress(progress, total):
-    sys.stderr.write('{}{:3.0f}% completed.{}'.format('\r' if progress != 0 else '', 100.0 * progress / total, '\n' if progress == total else ''))
+    sys.stderr.write('{}{:3.0f}% completed.{}'.format('\r' if progress !=
+                                                      0 else '', 100.0 * progress / total, '\n' if progress == total else ''))
 
 
 def detect_skin(image):
@@ -54,25 +56,44 @@ def detect_skin(image):
     return result
 
 
-def skin_color_detection(image):
-    skin_mask = detect_skin(image)
+def skin_color_detection(origin_image, correct_image):
+    skin_mask = detect_skin(origin_image)
+    shape = skin_mask.shape
+
+    # global image_index
+    # plt.figure(image_index)
+    # plt.subplot(121)
+    # plt.imshow(image)
+    # plt.subplot(122)
+    # plt.imshow(skin_mask)
+    # image_index += 1
+
+    total_same = 0
+    for row in range(shape[0]):
+        for col in range(shape[1]):
+            # if numpy.array_equal(skin_mask[row, col], correct_image[row, col]):
+            if ((skin_mask[row][col][0] == 0 and correct_image[row][col][0] == 0) or (skin_mask[row][col][0] == 1 and correct_image[row][col][0] == 1)):
+                total_same += 1
+    correction = total_same / (row * col)
+    global total_correction
+    total_correction += correction
     global image_index
-    plt.figure(image_index)
-    plt.subplot(121)
-    plt.imshow(image)
-    plt.subplot(122)
-    plt.imshow(skin_mask)
     image_index += 1
+    print(correction)
 
 
 if __name__ == '__main__':
-    path = '.'
+    path = 'Face_Dataset/test_image/'
+    c_path = 'Face_Dataset/test_mask/'
     file_dir = os.listdir(path)
     for i in file_dir:
         s = os.path.splitext(i)
         if s[1] != '.py' and s[1] != '':
             print('Processing ' + s[0] + s[1] + ' ...')
             image_filename = s[0] + s[1]
-            image = imread(image_filename) / 255.0
-            skin_color_detection(image)
-    plt.show()
+            image = imread(path + image_filename) / 255.0
+            correct_image_filename = s[0] + '.png'
+            correct_image = imread(c_path + correct_image_filename) / 255.0
+            skin_color_detection(image, correct_image)
+    
+    print(total_correction / image_index)
