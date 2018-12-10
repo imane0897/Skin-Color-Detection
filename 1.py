@@ -123,7 +123,8 @@ if __name__ == '__main__':
         s = os.path.splitext(i)
         if s[1] != '.py' and s[1] != '':
             print('Processing ' + s[0] + s[1] + ' ...')
-            skin_color_detection(path + 'test_image/' + s[0] + s[1], path + 'test_mask/' + s[0] + '.png')
+            skin_color_detection(
+                path + 'test_image/' + s[0] + s[1], path + 'test_mask/' + s[0] + '.png')
     # plt.show()
     # image_path = 'Face_Dataset/test_image/amida-belly-dancer.jpg'
     # correct_image = 'Face_Dataset/test_mask/amida-belly-dancer.png'

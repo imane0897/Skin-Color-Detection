@@ -13,12 +13,13 @@ image_index = 1
 
 
 def print_progress(progress, total):
-    sys.stderr.write('{}{:3.0f}% completed.{}'.format('\r' if progress != 0 else '', 100.0 * progress / total, '\n' if progress == total else ''))
+    sys.stderr.write('{}{:3.0f}% completed.{}'.format('\r' if progress !=
+                                                      0 else '', 100.0 * progress / total, '\n' if progress == total else ''))
 
 
 def skin_color_detection(imgFile):
     img = cv2.imread(imgFile)
-    rows,cols,channels = img.shape
+    rows, cols, channels = img.shape
     imgYcc = cv2.cvtColor(img, cv2.COLOR_BGR2YCR_CB)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     imgSkin = np.zeros(img.shape, np.uint8)
@@ -28,13 +29,13 @@ def skin_color_detection(imgFile):
         print_progress(r, rows)
         for c in range(cols):
             skin = 0
-            R = img.item(r,c,0)
-            G = img.item(r,c,1)
-            B = img.item(r,c,2)
+            R = img.item(r, c, 0)
+            G = img.item(r, c, 1)
+            B = img.item(r, c, 2)
 
-            Y = imgYcc.item(r,c,0)
-            Cr = imgYcc.item(r,c,1)
-            Cb = imgYcc.item(r,c,2)
+            Y = imgYcc.item(r, c, 0)
+            Cr = imgYcc.item(r, c, 1)
+            Cb = imgYcc.item(r, c, 2)
 
             if R > G and R > B:
                 if (G >= B and 5 * R - 12 * G + 7 * B >= 0) or (G < B and 5 * R + 7 * G - 12 * B >= 0):
@@ -42,22 +43,22 @@ def skin_color_detection(imgFile):
                         skin = 1
 
             if 0 == skin:
-                imgSkin.itemset((r,c,0),0)
-                imgSkin.itemset((r,c,1),0)
-                imgSkin.itemset((r,c,2),0)
+                imgSkin.itemset((r, c, 0), 0)
+                imgSkin.itemset((r, c, 1), 0)
+                imgSkin.itemset((r, c, 2), 0)
             else:
-                imgSkin.itemset((r,c,0),255)
-                imgSkin.itemset((r,c,1),255)
-                imgSkin.itemset((r,c,2),255)
+                imgSkin.itemset((r, c, 0), 255)
+                imgSkin.itemset((r, c, 1), 255)
+                imgSkin.itemset((r, c, 2), 255)
     print_progress(r, rows)
     global image_index
     plt.figure(image_index)
-    plt.subplot(1,2,1)
+    plt.subplot(1, 2, 1)
     plt.imshow(img)
     plt.title('Original Image')
     plt.xticks([])
     plt.yticks([])
-    plt.subplot(1,2,2)
+    plt.subplot(1, 2, 2)
     plt.imshow(imgSkin)
     plt.title('Transformed YCbCr Skin Image')
     plt.xticks([])

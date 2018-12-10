@@ -95,5 +95,5 @@ if __name__ == '__main__':
             correct_image_filename = s[0] + '.png'
             correct_image = imread(c_path + correct_image_filename) / 255.0
             skin_color_detection(image, correct_image)
-    
+
     print(total_correction / image_index)
